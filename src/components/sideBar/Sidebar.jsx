@@ -1,13 +1,17 @@
 import React from "react";
+import { useDispatch } from "react-redux";
+import { logout } from "../../app/slices/loginSlice";
 
 const Sidebar = () => {
+
+  const dispatch = useDispatch();
+
   return (
     <div className="flex flex-col justify-between min-h-screen">
       <div>
         <h2 className="text-[64px] text-teal-900 font-extrabold lora-font text-center">
           TSM.
         </h2>
-        <br />
         <br />
         <div className="bg-teal-100 w-[90%] py-2 rounded-r-lg text-lg text-teal-900 text-center font-bold flex gap-2 items-center pl-10">
           <svg
@@ -30,7 +34,9 @@ const Sidebar = () => {
       </div>
       <div className="p-4">
         <hr className="border-gray-300 mb-2" />
-        <div className="flex gap-2 hover:bg-teal-100 rounded-lg p-2 cursor-pointer">
+        <div className="flex gap-2 hover:bg-teal-100 rounded-lg p-2 cursor-pointer"
+        onClick={()=>dispatch(logout())}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24px"

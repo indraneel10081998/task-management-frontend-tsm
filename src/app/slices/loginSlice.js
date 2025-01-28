@@ -14,26 +14,37 @@ const loginSlice = createSlice({
     loginSuccess(state, action) {
       state.isAuthenticated = true;
       state.user = action.payload;
-      localStorage.setItem("userAuth", JSON.stringify(action.payload));
+
+      const expirationDate = new Date().getTime() + 7 * 24 * 60 * 60 * 1000;
+      const authData = {
+        ...action.payload,
+        expirationDate,
+      };
+
+      localStorage.setItem("taskAuth", JSON.stringify(authData));
     },
     logout(state) {
       state.isAuthenticated = false;
       state.user = null;
-      localStorage.removeItem("userAuth");
+
+      localStorage.removeItem("taskAuth");
     },
     initializeAuthState(state) {
-      const user = JSON.parse(localStorage.getItem("userAuth"));
-      if (user) {
-        state.isAuthenticated = true;
-        state.user = user;
+      const storedData = JSON.parse(localStorage.getItem("taskAuth"));
+
+      if (storedData) {
+        const currentTime = new Date().getTime();
+
+        if (storedData.expirationDate && storedData.expirationDate > currentTime) {
+          state.isAuthenticated = true;
+          state.user = storedData;
+        } else {
+          localStorage.removeItem("taskAuth");
+        }
       }
-    },
-    updateToken(state, action) {
-      state.user.token = action.payload.token;
-      localStorage.setItem('userAuth', JSON.stringify(state.user));
     },
   },
 });
 
-export const { loginSuccess, logout, initializeAuthState, updateToken } = loginSlice.actions;
+export const { loginSuccess, logout, initializeAuthState } = loginSlice.actions;
 export default loginSlice.reducer;

@@ -7,6 +7,9 @@ import Dashboard from "./pages/Dashboard";
 import PrimaryLayout from "./layouts/PrimaryLayout";
 import AuthForm from "./pages/AuthForm";
 import { ModalProvider } from "./context/ModalContext";
+import { Provider } from "react-redux";
+import store from "./app/store";
+import { initializeAuthState } from "./app/slices/loginSlice";
 
 const router = createBrowserRouter([
   { path: ROUTES.LOGIN, element: <AuthForm type="login" /> },
@@ -18,10 +21,14 @@ const router = createBrowserRouter([
   },
 ]);
 
+store.dispatch(initializeAuthState());
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <ModalProvider>
-      <RouterProvider router={router} />
-    </ModalProvider>
+    <Provider store={store}>
+      <ModalProvider>
+        <RouterProvider router={router} />
+      </ModalProvider>
+    </Provider>
   </StrictMode>
 );

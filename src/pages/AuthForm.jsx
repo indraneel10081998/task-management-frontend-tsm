@@ -1,12 +1,29 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../routes';
 import apiAuth from '../api/auth'
+import { loginSuccess } from '../app/slices/loginSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { useModal } from '../context/ModalContext';
 
 const AuthForm = ({ type }) => {
   const isSignup = type === 'signup';
+  const dispatch = useDispatch();
+
+  const navigate = useNavigate();
+
+  const isLogin = useSelector((state)=>state?.login?.isAuthenticated);
+
+useEffect(() => {
+  if (isLogin) {
+    navigate(`/`);
+  }
+}, [isLogin, navigate]);
+
+  const { showModal } = useModal();
+
 
   const initialValues = {
     email: '',
@@ -18,15 +35,29 @@ const AuthForm = ({ type }) => {
     password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
   });
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, {resetForm}) => {
     try {
-      console.log('Form data', values);
       if (isSignup) {
-        const response = await apiAuth.register(values);
-        console.log('Register Response:', response);
+        const {data, error} = await apiAuth.register(values);
+        if(error){
+          console.error(error);
+          showModal("error", error);
+        }else{
+          console.log(data);     
+          showModal("success", data?.message);
+          resetForm();
+          navigate(`/${ROUTES.LOGIN}`)
+        }
       } else {
-        const response = await apiAuth.login(values);
-        console.log('Login Response:', response);
+        const {data, error} = await apiAuth.login(values);
+        if(error){
+          console.error(error);
+          showModal("error", error);
+        }else{
+          console.log(data);
+          showModal("success", data?.message);
+          dispatch(loginSuccess(data))      
+        }
       }
     } catch (error) {
       console.error('Error:', error);
@@ -79,7 +110,7 @@ const AuthForm = ({ type }) => {
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center bg-teal-600 px-3 py-2.5 text-lg font-semibold text-white shadow-sm hover:bg-teal-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
+                className="flex w-full justify-center bg-teal-600 px-3 py-2.5 text-lg font-semibold text-white shadow-sm hover:bg-teal-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600 cursor-pointer"
               >
                 {isSignup ? 'Sign Up' : 'Sign in'}
               </button>

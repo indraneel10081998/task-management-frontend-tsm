@@ -13,13 +13,6 @@ api.interceptors.request.use(
     const token = store?.getState()?.login?.user?.token;
 
     if (token) {
-      const isValid = await verifyToken(token);
-
-      if (!isValid) {
-        store.dispatch(logout());
-        throw new axios.Cancel("Invalid or expired token. Logging out...");
-      }
-
       config.headers["Authorization"] = `Bearer ${token}`;
     }
 
@@ -38,7 +31,9 @@ const get = async (url, headers = {}) => {
     });
     return { data: response.data, error: null };
   } catch (error) {
-    return { data: null, error: error.response.data.message };
+    console.log(error);
+    
+    return { data: null, error: error.response.data.error };
   }
 };
 
@@ -65,7 +60,7 @@ const post = async (url, data, headers = {}) => {
   } catch (error) {
     return {
       data: null,
-      error: error.response?.data?.message || error.response?.data.errors,
+      error: error.response?.data?.error || error.response?.data.errors,
     };
   }
 };
@@ -81,7 +76,7 @@ const put = async (url, data, headers = {}) => {
   } catch (error) {
     return {
       data: null,
-      error: error.response?.data?.message || error.response?.data.errors,
+      error: error.response?.data?.error || error.response?.data.errors,
     };
   }
 };
@@ -95,7 +90,7 @@ const remove = async (url, headers = {}) => {
     });
     return { data: response.data, error: null };
   } catch (error) {
-    return { data: null, error: error.response.data.message };
+    return { data: null, error: error.response.data.error };
   }
 };
 
@@ -110,7 +105,7 @@ const patch = async (url, data = "", headers = {}) => {
   } catch (error) {
     return {
       data: null,
-      error: error.response.data.message || error.response?.data.errors,
+      error: error.response.data.error || error.response?.data.errors,
     };
   }
 };
